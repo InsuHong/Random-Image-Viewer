@@ -1,0 +1,14 @@
+C:\Users\lab23\source\repos\random_image\random_image\bin\Release\random_image.exe.config
+C:\Users\lab23\source\repos\random_image\random_image\bin\Release\random_image.exe
+C:\Users\lab23\source\repos\random_image\random_image\bin\Release\random_image.pdb
+C:\Users\lab23\source\repos\random_image\random_image\obj\Release\Interop.WMPLib.dll
+C:\Users\lab23\source\repos\random_image\random_image\obj\Release\random_image.csproj.ResolveComReference.cache
+C:\Users\lab23\source\repos\random_image\random_image\obj\Release\random_image.Form1.resources
+C:\Users\lab23\source\repos\random_image\random_image\obj\Release\random_image.Form2.resources
+C:\Users\lab23\source\repos\random_image\random_image\obj\Release\random_image.Form3.resources
+C:\Users\lab23\source\repos\random_image\random_image\obj\Release\random_image.Properties.Resources.resources
+C:\Users\lab23\source\repos\random_image\random_image\obj\Release\random_image.csproj.GenerateResource.cache
+C:\Users\lab23\source\repos\random_image\random_image\obj\Release\random_image.csproj.CoreCompileInputs.cache
+C:\Users\lab23\source\repos\random_image\random_image\obj\Release\random_image.exe
+C:\Users\lab23\source\repos\random_image\random_image\obj\Release\random_image.pdb
+C:\Users\lab23\source\repos\random_image\random_image\obj\Release\random_image.csprojAssemblyReference.cache
