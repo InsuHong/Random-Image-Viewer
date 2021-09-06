@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ZetaLongPaths;
 
 namespace random_image
 {
@@ -331,15 +332,20 @@ namespace random_image
             
         }
 
-
-        //이미지 파일 메모리에 적재(사용중인 파일 문제 해결)
+        //이미지 파일 메모리에 적재(사용중인 파일 문제 해결),  ZetaLongPaths라이브러리로 긴파일이름 오류해결
         public Bitmap LoadBitmap(string path)
         {
-            if (File.Exists(path))
+            ZlpFileInfo zfi = new ZlpFileInfo(path);
+            if (zfi.Exists)
             {
                 // open file in read only mode
-                using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+
                 // get a binary reader for the file stream
+
+                var fileHandle = ZlpIOHelper.CreateFileHandle(path, ZetaLongPaths.Native.CreationDisposition.OpenAlways, ZetaLongPaths.Native.FileAccess.GenericRead, ZetaLongPaths.Native.FileShare.Read);
+                FileStream stream = new System.IO.FileStream(fileHandle, System.IO.FileAccess.Read);
+
+
                 using (BinaryReader reader = new BinaryReader(stream))
                 {
                     // copy the content of the file into a memory stream
