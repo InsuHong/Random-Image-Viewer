@@ -32,7 +32,6 @@ namespace random_image
             InitializeComponent();
         }
 
-
         private void Form1_Load(object sender, EventArgs e)
         {
 
@@ -308,7 +307,8 @@ namespace random_image
                     ZlpFileInfo file = new ZlpFileInfo(f_path);
                     if (file.Exists)
                     {
-                        f_ext = System.IO.Path.GetExtension(f_path).Replace(".", "").ToLower();
+                        //f_ext = System.IO.Path.GetExtension(f_path).Replace(".", "").ToLower();
+                        f_ext = ZlpPathHelper.GetExtension(f_path).Replace(".", "").ToLower();
                         //Debug.WriteLine("검사중 : " + f_path + " / "+ f_ext);
 
                         if (f_ext == "bmp" || f_ext == "gif" || f_ext == "jpg" || f_ext == "jpeg" || f_ext == "png")
