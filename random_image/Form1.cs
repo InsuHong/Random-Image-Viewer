@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using ZetaLongPaths;
 
 namespace random_image
 {
@@ -35,7 +36,7 @@ namespace random_image
         private void Form1_Load(object sender, EventArgs e)
         {
 
-            FileInfo fi = new FileInfo(Application.StartupPath + "\\setup.ini");
+            ZlpFileInfo fi = new ZlpFileInfo(Application.StartupPath + "\\setup.ini");
             if (fi.Exists == false)
             {
                 make_ini();
@@ -271,7 +272,7 @@ namespace random_image
                 if (Array_Radio_edit[i].Checked == true)
                 {
                     now_dir = Array_Radio_edit[i].Tag.ToString();
-                    System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(now_dir);
+                    ZlpDirectoryInfo di = new ZlpDirectoryInfo(now_dir);
                     if (di.Exists)
                     {
                         read_dir(now_dir);
@@ -293,16 +294,18 @@ namespace random_image
         public void read_dir(String dir_path)
         {
             String FolderName = dir_path;
-            System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(FolderName);
+            //System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(FolderName);
+            ZlpDirectoryInfo di = new ZlpDirectoryInfo(FolderName);
             //파일처리
             String f_path = "", f_ext = "", sub_dirname;
             if (di.Exists)
             {
-                foreach (System.IO.FileInfo File in di.GetFiles())
+                foreach (ZlpFileInfo File in di.GetFiles())
                 {
 
                     f_path = FolderName + "\\" + File.Name;
-                    FileInfo file = new FileInfo(f_path);
+//                    FileInfo file = new FileInfo(f_path);
+                    ZlpFileInfo file = new ZlpFileInfo(f_path);
                     if (file.Exists)
                     {
                         f_ext = System.IO.Path.GetExtension(f_path).Replace(".", "").ToLower();
@@ -316,12 +319,13 @@ namespace random_image
 
                 }
                 //디렉토리 처리
-                di = new System.IO.DirectoryInfo(FolderName);
-                System.IO.DirectoryInfo sub_di;
-                foreach (System.IO.DirectoryInfo Dirs in di.GetDirectories())
+                //di = new System.IO.DirectoryInfo(FolderName);
+                di = new ZlpDirectoryInfo(FolderName);
+                ZlpDirectoryInfo sub_di;
+                foreach (ZlpDirectoryInfo Dirs in di.GetDirectories())
                 {
                     sub_dirname = FolderName + "\\" + Dirs.Name;
-                    sub_di = new System.IO.DirectoryInfo(sub_dirname);
+                    sub_di = new ZlpDirectoryInfo(sub_dirname);
                     if (sub_di.Exists)
                     {
                         read_dir(sub_dirname);
@@ -343,7 +347,8 @@ namespace random_image
                 if (random_filelist.Length > 0)
                 {
                     now_file = random_filelist[now_idx];
-                    FileInfo file = new FileInfo(now_file);
+                    //FileInfo file = new FileInfo(now_file)
+                    ZlpFileInfo file = new ZlpFileInfo(now_file);
                     if (file.Exists)
                     {
                         //                        Image sourceImage = Image.FromFile(now_file);
@@ -382,11 +387,13 @@ namespace random_image
             //삭제확인
             if (MessageBox.Show("삭제 하시겠습니까?", "삭제", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
             {
-                FileInfo file = new FileInfo(file_name);
+                //FileInfo file = new FileInfo(file_name);
+                ZlpFileInfo file = new ZlpFileInfo(file_name);
                 if (file.Exists)
                 {
                     next_image();
-                    System.IO.File.Delete(file_name);
+                    //System.IO.File.Delete(file_name);
+                    ZlpIOHelper.DeleteFile(file_name);
                 }
             }
         }
@@ -405,20 +412,27 @@ namespace random_image
             return DateTime.Now;
         }
 
-        //이미지 파일 메모리에 적재(사용중인 파일 문제 해결)
+        //이미지 파일 메모리에 적재(사용중인 파일 문제 해결),  ZetaLongPaths라이브러리로 긴파일이름 오류해결
         public Bitmap LoadBitmap(string path)
         {
-            if (File.Exists(path))
+            ZlpFileInfo zfi = new ZlpFileInfo(path);
+            if (zfi.Exists)
             {
                 // open file in read only mode
-                using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+
                 // get a binary reader for the file stream
+
+                var fileHandle = ZlpIOHelper.CreateFileHandle(path, ZetaLongPaths.Native.CreationDisposition.OpenAlways, ZetaLongPaths.Native.FileAccess.GenericRead, ZetaLongPaths.Native.FileShare.Read);
+                FileStream stream = new System.IO.FileStream(fileHandle, System.IO.FileAccess.Read);
+
+
                 using (BinaryReader reader = new BinaryReader(stream))
                 {
                     // copy the content of the file into a memory stream
                     var memoryStream = new MemoryStream(reader.ReadBytes((int)stream.Length));
                     // make a new Bitmap object the owner of the MemoryStream
-                    return new Bitmap(memoryStream);
+
+                    return resize_bitmap(new Bitmap(memoryStream), 2732, 2400);
                 }
             }
             else
@@ -426,6 +440,33 @@ namespace random_image
                 //        MessageBox.Show("Error Loading File.", "Error!", MessageBoxButtons.OK);
                 return null;
             }
+        }
+
+
+        private static Bitmap resize_bitmap(Bitmap mkimg, int max_width, int max_height)
+        {
+
+            //int max_width = 2732, max_height = 2400;
+            Bitmap croppedBitmap = mkimg;
+            if (mkimg.Width > max_width || mkimg.Height > max_height)
+            {
+
+                double ratioX = max_width / (double)mkimg.Width;
+                double ratioY = max_height / (double)mkimg.Height;
+                double ratio = Math.Min(ratioX, ratioY);
+
+
+                int newWidth = (int)(mkimg.Width * ratio);
+                int newHeight = (int)(mkimg.Height * ratio);
+
+                Size resize = new Size(newWidth, newHeight);
+                croppedBitmap = new Bitmap(mkimg, resize);
+
+
+
+            }
+
+            return croppedBitmap;
         }
 
         void change_color(object sender, EventArgs e)
